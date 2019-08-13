@@ -9,6 +9,8 @@
 #import "Presenter.h"
 #import "TRMoezdorovieDataProvider.h"
 
+static const float TRSearchTimerInterval = 0.4;
+
 @interface Presenter ()
 
 @property (strong, nonatomic) TRMoezdorovieDataProvider *dataProvider;
@@ -16,6 +18,8 @@
 @property (nonatomic) BOOL isNextPageLoading;
 @property (nonatomic) NSInteger currentPage;
 @property (strong, nonatomic) NSString *searchString;
+@property (strong, nonatomic) NSTimer *timer;
+
 
 @end
 
@@ -62,7 +66,13 @@
 }
 
 - (void)didSearchStringChange:(NSString *)newSearchString {
+    [self.timer invalidate];
+    SEL selector = @selector(requestNewDataFromServer:);
+    self.timer = [NSTimer scheduledTimerWithTimeInterval:TRSearchTimerInterval target:self selector:selector userInfo:nil repeats:NO];
     self.searchString = newSearchString;
+}
+
+- (void)requestNewDataFromServer:(NSTimer *)timer {
     self.currentPage = 1;
     [self firstPageLoad];
 }
